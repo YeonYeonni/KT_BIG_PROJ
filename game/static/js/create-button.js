@@ -7,7 +7,7 @@ function createButton(scene, key) {
       0,
       0,
       0,
-      50,
+      40,
       COLOR_LIGHT,
       0.8
     ),

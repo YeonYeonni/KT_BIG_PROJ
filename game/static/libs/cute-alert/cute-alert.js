@@ -5,29 +5,29 @@ const cuteAlert = ({
   title,
   message,
   img,
-  buttonText = "OK",
-  confirmText = "OK",
+  buttonText = 'OK',
+  confirmText = 'OK',
   vibrate = [],
   playSound = null,
-  cancelText = "Cancel",
+  cancelText = 'Cancel',
   closeStyle,
 }) => {
-  return new Promise((resolve) => {
-    const existingAlert = document.querySelector(".alert-wrapper");
+  return new Promise(resolve => {
+    const existingAlert = document.querySelector('.alert-wrapper');
 
     if (existingAlert) {
       existingAlert.remove();
     }
 
-    const body = document.querySelector("body");
+    const body = document.querySelector('body');
 
-    const scripts = document.getElementsByTagName("script");
+    const scripts = document.getElementsByTagName('script');
 
-    let src = "";
+    let src = '';
 
     for (let script of scripts) {
-      if (script.src.includes("cute-alert.js")) {
-        src = script.src.substring(0, script.src.lastIndexOf("/"));
+      if (script.src.includes('cute-alert.js')) {
+        src = script.src.substring(0, script.src.lastIndexOf('/'));
       }
     }
 
@@ -35,7 +35,7 @@ const cuteAlert = ({
     <button class="alert-button ${type}-bg ${type}-btn">${buttonText}</button>
     `;
 
-    if (type === "question") {
+    if (type === 'question') {
       btnTemplate = `
       <div class="question-buttons">
         <button class="confirm-button ${type}-bg ${type}-btn">${confirmText}</button>
@@ -56,16 +56,25 @@ const cuteAlert = ({
     const template = `
     <div class="alert-wrapper">
       <div class="alert-frame">
-        ${img !== "" ? '<div class="alert-header ' + type + '-bg">' : "<div>"}
+        ${
+          img === undefined
+            ? '<div class="alert-header ' + type + '-bg">'
+            : '<div class="alert-header-base">'
+        }
           <span class="alert-close ${
-            closeStyle === "circle"
-              ? "alert-close-circle"
-              : "alert-close-default"
+            closeStyle === 'circle'
+              ? 'alert-close-circle'
+              : 'alert-close-default'
           }">X</span>
           ${
-            img !== ""
-              ? '<img class="alert-img" src="' + src + "/" + img + '" />'
-              : ""
+            img === undefined
+              ? '<img class="alert-img" src="' +
+                src +
+                "/img/" +
+                type +
+                ".svg" +
+                '" />'
+              : '<div class="custom-img-wrapper">' + img + "</div>"
           }
         </div>
         <div class="alert-body">
@@ -77,79 +86,72 @@ const cuteAlert = ({
     </div>
     `;
 
-    body.insertAdjacentHTML("afterend", template);
+    body.insertAdjacentHTML('afterend', template);
 
-    const alertWrapper = document.querySelector(".alert-wrapper");
-    const alertFrame = document.querySelector(".alert-frame");
-    const alertClose = document.querySelector(".alert-close");
+    const alertWrapper = document.querySelector('.alert-wrapper');
+    const alertFrame = document.querySelector('.alert-frame');
+    const alertClose = document.querySelector('.alert-close');
 
-    if (type === "question") {
-      const confirmButton = document.querySelector(".confirm-button");
-      const cancelButton = document.querySelector(".cancel-button");
+    if (type === 'question') {
+      const confirmButton = document.querySelector('.confirm-button');
+      const cancelButton = document.querySelector('.cancel-button');
 
-      confirmButton.addEventListener("click", () => {
+      confirmButton.addEventListener('click', () => {
         alertWrapper.remove();
-        resolve("confirm");
+        resolve('confirm');
       });
 
-      cancelButton.addEventListener("click", () => {
+      cancelButton.addEventListener('click', () => {
         alertWrapper.remove();
         resolve();
       });
     } else {
-      const alertButton = document.querySelector(".alert-button");
+      const alertButton = document.querySelector('.alert-button');
 
-      alertButton.addEventListener("click", () => {
+      alertButton.addEventListener('click', () => {
         alertWrapper.remove();
-        resolve("ok");
+        resolve('ok');
       });
     }
 
-    alertClose.addEventListener("click", () => {
+    alertClose.addEventListener('click', () => {
       alertWrapper.remove();
-      resolve("close");
+      resolve('close');
     });
 
-    /*     alertWrapper.addEventListener('click', () => {
+/*     alertWrapper.addEventListener('click', () => {
       alertWrapper.remove();
       resolve();
     }); */
 
-    alertFrame.addEventListener("click", (e) => {
+    alertFrame.addEventListener('click', e => {
       e.stopPropagation();
     });
   });
 };
 
-const cuteToast = ({
-  type,
-  title,
-  message,
-  timer = 5000,
-  vibrate = [],
-  playSound = null,
-}) => {
-  return new Promise((resolve) => {
-    const body = document.querySelector("body");
+const cuteToast = ({ type, title, message, timer = 5000,  vibrate = [], playSound = null }) => {
+  return new Promise(resolve => {
+    const body = document.querySelector('body');
 
-    const scripts = document.getElementsByTagName("script");
+    const scripts = document.getElementsByTagName('script');
 
-    let src = "";
+    let src = '';
 
     for (let script of scripts) {
-      if (script.src.includes("cute-alert.js")) {
-        src = script.src.substring(0, script.src.lastIndexOf("/"));
+      if (script.src.includes('cute-alert.js')) {
+        src = script.src.substring(0, script.src.lastIndexOf('/'));
       }
     }
 
-    let templateContainer = document.querySelector(".toast-container");
+    let templateContainer = document.querySelector('.toast-container');
 
     if (!templateContainer) {
       body.insertAdjacentHTML(
-        "afterend",
-        '<div class="toast-container"></div>'
+        'afterend',
+        '<div class="toast-container"></div>',
       );
-      templateContainer = document.querySelector(".toast-container");
+      templateContainer = document.querySelector('.toast-container');
     }
 
     const toastId = id();
@@ -172,10 +174,10 @@ const cuteToast = ({
     </div>
     `;
 
-    const toasts = document.querySelectorAll(".toast-content");
+    const toasts = document.querySelectorAll('.toast-content');
 
     if (toasts.length) {
-      toasts[0].insertAdjacentHTML("beforebegin", templateContent);
+      toasts[0].insertAdjacentHTML('beforebegin', templateContent);
     } else {
       templateContainer.innerHTML = templateContent;
     }
@@ -198,15 +200,13 @@ const cuteToast = ({
 
     const toastClose = document.getElementById(`${toastId}-toast-close`);
 
-    toastClose.addEventListener("click", () => {
+    toastClose.addEventListener('click', () => {
       toastContent.remove();
       resolve();
     });
-
-    console.log(toastContent);
   });
 };
 
 const id = () => {
-  return "_" + Math.random().toString(36).substr(2, 9);
+  return '_' + Math.random().toString(36).substr(2, 9);
 };

@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{%load static%}
+{% block script %}
+
+<script src="{% static 'js/window.js' %}"></script> 
+<script>
+
+    function preload(){
+        //let history = {{history|safe}}
+        console.log(history)
+
+        this.load.scenePlugin({
+            key: 'rexuiplugin',
+            url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
+            sceneKey: 'rexUI'
+        });
+        
+        //face
+        this.load.image('face', "{% static '/resource/ui/analysis/숲.png'%}")
+
+        //ui
+        this.load.image('back', "{% static '/resource/ui/back2.png'%}")
+        this.load.image('eyeui', "{% static '/resource/ui/skills/ui/눈.png'%}")
+        this.load.image('noseui', "{% static '/resource/ui/skills/ui/코.png'%}")
+        this.load.image('mouthui', "{% static '/resource/ui/skills/ui/입.png'%}")
+    }
+
+    function create(){
+        // 분석글
+        face_age = 3 // DB에서 받아오기
+
+        this.add.text(53, 60, '현재 회원님의 안면 근육 나이는 ' + face_age + '세 입니다', {color:'black', font:'450 14px Arial'})
+
+        // 얼굴 이미지
+        face = this.physics.add.staticGroup();
+        test_face = this.add.image(188, 334, 'face').setScale(0.60).setInteractive({cursor:'pointer'})
+    
+        // 뒤로가기 버튼
+        back = this.add.image(30,30,'back').setInteractive({cursor:'pointer'}); // 뒤로 돌아가기? preload에서 가져온 이미지
+        back.on('pointerover', function(event){
+            this.setTint(0x50bcdf)
+        })
+        back.on('pointerout', function(event){
+            this.clearTint()
+        })
+        back.on('pointerdown', function(event){
+            location.replace('http://localhost:8000/mainapp/main')
+        })
+
+        // 눈, 코, 입 ui
+        ui = this.physics.add.staticGroup();
+        eyeui = ui.create(95,570, 'eyeui').setScale(0.35).setInteractive();
+        noseui = ui.create(187,570, 'noseui').setScale(0.35).setInteractive();
+        mouthui = ui.create(280,570, 'mouthui').setScale(0.35).setInteractive();
+        typeui = [eyeui, noseui, mouthui];
+        this.input.on('gameobjectdown', function(pointer, gameObject){
+            if(gameObject==eyeui){choicetype(eyeui, typeui)}
+            if(gameObject==noseui){choicetype(noseui, typeui)}
+            if(gameObject==mouthui){choicetype(mouthui, typeui)}
+        })
+
+        function choicetype(icon, array){
+            for(var i=0;i<array.length;i++){
+                icon.setTint(0x50bcdf);
+                if(icon!=array[i]){
+                    array[i].clearTint();
+                }
+            }
+        } 
+
+        // 추천
+
+        let recsys = this.rexUI.add.roundRectangle(188,180,250,70,7,0xD9D9D9).setInteractive({cursor:'pointer'})
+        this.add.text(130, 170, '추천제품보기', {color:'black', font:'450 20px Arial'})
+
+        recsys.on('pointerover', function(event){
+            this.setFillStyle(0x50bcdf)
+        })
+        recsys.on('pointerout', function(event){
+            this.setFillStyle(0xD9D9D9)
+        })
+        recsys.on('pointerdown', function(event){
+            location.replace('http://localhost:8000/mainapp/recsys')
+        })
+
+        // 눈 버튼
+        eye_momentum_daily = 3 // DB에서 받아오기
+        eye_momentum_weekly = 3 // DB에서 받아오기
+
+        eye_daily = this.add.text(53, 85, '오늘은 눈 주변 근육을 ' + eye_momentum_daily + '만큼 사용하였습니다', {color:'black', font:'450 14px Arial'})
+        eye_weekly = this.add.text(53, 110, '이번주는 눈 주변 근육을 ' + eye_momentum_weekly + '만큼 사용하였습니다', {color:'black', font:'450 14px Arial'})
+
+        eye_daily.visible = false
+        eye_weekly.visible = false
+
+        eyeui.on('pointerdown', function(event){
+            eye_daily.visible = true
+            eye_weekly.visible = true
+            nose_daily.visible = false
+            nose_weekly.visible = false
+            mouth_daily.visible = false
+            mouth_weekly.visible = false
+        })
+
+        // 코 버튼
+        nose_momentum_daily = 789 // DB에서 받아오기
+        nose_momentum_weekly = 494 // DB에서 받아오기
+
+        nose_daily = this.add.text(53, 85, '오늘은 코 주변 근육을 ' + nose_momentum_daily + '만큼 사용하였습니다', {color:'black', font:'450 14px Arial'})
+        nose_weekly = this.add.text(53, 110, '이번주는 코 주변 근육을 ' + nose_momentum_weekly + '만큼 사용하였습니다', {color:'black', font:'450 14px Arial'})
+
+        nose_daily.visible = false
+        nose_weekly.visible = false
+
+        noseui.on('pointerdown', function(event){
+            nose_daily.visible = true
+            nose_weekly.visible = true
+            eye_daily.visible = false
+            eye_weekly.visible = false
+            mouth_daily.visible = false
+            mouth_weekly.visible = false
+        })
+
+        // 입 버튼
+        mouth_momentum_daily = 489 // DB에서 받아오기
+        mouth_momentum_weekly = 561 // DB에서 받아오기
+
+        mouth_daily = this.add.text(53, 85, '오늘은 입 주변 근육을 ' + mouth_momentum_daily + '만큼 사용하였습니다', {color:'black', font:'450 14px Arial'})
+        mouth_weekly = this.add.text(53, 110, '이번주는 입 주변 근육을 ' + mouth_momentum_weekly + '만큼 사용하였습니다', {color:'black', font:'450 14px Arial'})
+
+        mouth_daily.visible = false
+        mouth_weekly.visible = false
+
+        mouthui.on('pointerdown', function(event){
+            mouth_daily.visible = true
+            mouth_weekly.visible = true
+            eye_daily.visible = false
+            eye_weekly.visible = false
+            nose_daily.visible = false
+            nose_weekly.visible = false
+
+        })
+    }
+
+    function update(){
+        
+    }
+
+    let config = {
+        type: Phaser.AUTO,
+        width: window_width,
+        height: window_height,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                debug: false,
+                gravity: {
+                    y: 0
+                }
+            }
+        },
+        backgroundColor: '#ffffff',
+        scene: {
+          preload: preload,
+          create: create,
+          update:update,
+        },
+        scale: {
+            mode: Phaser.Scale.ScaleModes.FIT,
+            autoCenter: Phaser.Scale.CENTER_BOTH,
+        },
+        pixelArt: false,
+        render:{
+          antialias: true
+        },
+      }
+      let game =  new Phaser.Game(config)
+</script>
+{% endblock script %}

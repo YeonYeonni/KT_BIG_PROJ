@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .models import *
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import CurrentUserSerializer
+from .serializers import CurrentUserSerializer, AchievementSerializer, AchieveUserSerializer
 import os
 from django.conf import settings
 
@@ -14,6 +14,10 @@ def index(request):
 def recommend(request):
   products = Beautyproduct.objects.all()
   return render(request, 'core/recommend.html', {'products': products})
+
+def analysis(request):
+  history = HistoryByDay.objects.all()
+  return render(request, 'mainapp/analysis.html', {'history': history})
 
 def pve(request):
   return render(request, 'core/PvE.html')
@@ -44,4 +48,16 @@ def file_path(filename):
 class CurrentUserAPI(APIView):
   def get(self, request):
     serializer = CurrentUserSerializer(request.user, context={'request': request})
+    return Response(serializer.data)
+  
+class AchievementAPI(APIView):
+  def get(self, request):
+    achieve_list = Achievement.objects.all()
+    serializer = AchievementSerializer(achieve_list, many=True)
+    return Response(serializer.data)
+  
+class AchieveUserAPI(APIView):
+  def get(self, request):
+    achieve_list = AchieveUser.objects.all()
+    serializer = AchieveUserSerializer(achieve_list, many=True)
     return Response(serializer.data)

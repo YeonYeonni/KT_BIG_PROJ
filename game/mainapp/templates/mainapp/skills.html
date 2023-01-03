@@ -20,20 +20,17 @@
         this.load.image('noseui', "{% static '/resource/ui/skills/ui/코.png'%}")
         this.load.image('mouthui', "{% static '/resource/ui/skills/ui/입.png'%}")
         this.load.image('Rect', "{% static '/resource/ui/skills/ui/Rect.png'%}")
-
+        this.load.image('confirm', "{% static '/resource/ui/skills/ui/확정.png'%}")
     }
 
     function create(){
 
-
         skills = this.physics.add.staticGroup();
         ui = this.physics.add.staticGroup();
         
-
         this.add.image(150,300,'background');
         this.add.image(150,300,'bg2').setScale(0.35);
         back = this.add.image(30,30,'back').setInteractive({cursor:'pointer'});
-
         back.on('pointerover', function(event){
             this.setTint(0x50bcdf)
         })
@@ -44,11 +41,16 @@
             location.replace('http://localhost:8000/mainapp/main')
         })
 
+        confirm = this.add.image(150,190,'confirm').setScale(0.60).setInteractive({cursor:'pointer'});
+        confirm.visible = false
+
+        //ui
         eyeui = ui.create(65,520, 'eyeui').setScale(0.35).setInteractive();
         noseui = ui.create(150,520, 'noseui').setScale(0.35).setInteractive();
         mouthui = ui.create(235,520, 'mouthui').setScale(0.35).setInteractive();
         typeui = [eyeui, noseui, mouthui];
 
+        //skills
         skill1 = skills.create(80,350, 'skill1').setScale(0.7).setInteractive();
         skill2 = skills.create(150,350, 'skill2').setScale(0.7).setInteractive();
         skill3 = skills.create(220,350, 'skill3').setScale(0.7).setInteractive();
@@ -56,22 +58,89 @@
         skill5 = skills.create(150,430, 'skill5').setScale(0.7).setInteractive();
         skill6 = skills.create(220,430, 'skill6').setScale(0.7).setInteractive();
         s = [skill1, skill2, skill3, skill4, skill5, skill6];
-        all = [s,s,s]
 
-        EyeSkill = this.add.image(80, 350, 'Rect').setScale(0.9);
-        NoseSkill = this.add.image(80, 350, 'Rect').setScale(0.9);
-        MouthSkill = this.add.image(80, 350, 'Rect').setScale(0.9);
+        skill1_rect = this.add.image(80, 350, 'Rect').setScale(0.9);
+        skill2_rect = this.add.image(150, 350, 'Rect').setScale(0.9);
+        skill3_rect = this.add.image(220, 350, 'Rect').setScale(0.9);
+        skill4_rect = this.add.image(80, 430, 'Rect').setScale(0.9);
+        skill5_rect = this.add.image(150, 430, 'Rect').setScale(0.9);
+        skill6_rect = this.add.image(220, 430, 'Rect').setScale(0.9);
 
-        EyeSkill.visible = false
-        NoseSkill.visible = false
-        MouthSkill.visible = false
+        skill1_rect.visible = false
+        skill2_rect.visible = false
+        skill3_rect.visible = false
+        skill4_rect.visible = false
+        skill5_rect.visible = false
+        skill6_rect.visible = false
 
+        skill_count = [false, false, false, false, false, false]
+
+        // true 세기
+        let count = 0;
+        for(let loop = 0; loop < skill_count.length; loop++) {
+        if(skill_count[loop] === true)  {
+            count++;
+            }
+        } console.log(`count : ${count}`);
+
+        this.input.on('gameobjectdown', function(pointer, gameObject){
+            if(gameObject==skill1){
+                skill1_rect.visible= !skill1_rect.visible;
+                skill_count[0] = !skill_count[0];
+            }
+            if(gameObject==skill2){
+                skill2_rect.visible= !skill2_rect.visible;
+                skill_count[1] = !skill_count[1];
+            }
+            if(gameObject==skill3){
+                skill3_rect.visible= !skill3_rect.visible;
+                skill_count[2] = !skill_count[2];
+            }
+            if(gameObject==skill4){
+                skill4_rect.visible= !skill4_rect.visible;
+                skill_count[3] = !skill_count[3];
+            }
+            if(gameObject==skill5){
+                skill5_rect.visible= !skill5_rect.visible;
+                skill_count[4] = !skill_count[4];
+            }
+            if(gameObject==skill6){
+                skill6_rect.visible= !skill6_rect.visible;
+                skill_count[5] = !skill_count[5];
+            }
+
+            // 선택된 스킬 수 세기
+            let count = 0;
+            for(let loop = 0; loop < skill_count.length; loop++) {
+            if(skill_count[loop] === true)  {
+                count++;
+                }
+            } console.log(`count : ${count}`);
+
+            if(count==3){
+                console.log('선택완료');
+
+                confirm.visible = true
+                confirm.on('pointerover', function(event){
+                    this.setTint(0x50bcdf)
+                })
+                confirm.on('pointerout', function(event){
+                    this.clearTint()
+                })
+                confirm.on('pointerdown', function(event){
+                    location.replace('http://localhost:8000/mainapp/main')
+                })
+            } else {
+                confirm.visible = false
+            }
+
+        })
+        
         this.input.on('gameobjectdown', function(pointer, gameObject){
             if(gameObject==eyeui){choicetype(eyeui, typeui)}
             if(gameObject==noseui){choicetype(noseui, typeui)}
             if(gameObject==mouthui){choicetype(mouthui, typeui)}
         })
-
 
         function choicetype(icon, array){
             for(var i=0;i<array.length;i++){
@@ -80,27 +149,11 @@
                     array[i].clearTint();
                 }
             }
-        } 
-
-        function choiceskill(icon, array){
-            if (eyeui.isTinted == true){
-
-            }
         }
-
-
     }
 
     
-
-
     function update(){
-        skill1.on('pointerup', function (event){Rect.setPosition(skill1.x, skill1.y);});
-        skill2.on('pointerup', function (event){Rect.setPosition(skill2.x, skill2.y);});
-        skill3.on('pointerup', function (event){Rect.setPosition(skill3.x, skill3.y);});
-        skill4.on('pointerup', function (event){Rect.setPosition(skill4.x, skill4.y);});
-        skill5.on('pointerup', function (event){Rect.setPosition(skill5.x, skill5.y);});
-        skill6.on('pointerup', function (event){Rect.setPosition(skill6.x, skill6.y);});
     }
 
  

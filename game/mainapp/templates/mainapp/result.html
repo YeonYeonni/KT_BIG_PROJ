@@ -1,106 +1,60 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static %} 
 
-{% block script %}
-<script src="{% static 'js/window.js' %}"></script>
-<script src="{% static 'js/font-size.js' %}"></script>
-<script src="{% static 'js/create-button.js' %}"></script>
+{% block style %}
+<style>
+  .size-btn {
+    width: 5rem;
+    height: 5rem;
+    align-items: center;
+    display: flex;
+  }
 
-
-<script>
-
-const font_size = default_font_size * 1.5
-const exercise_text_start_height = 500
-const exercise_text_margin_height = 10
-const button_label_idx = {
-  0: 'product',
-  1: 'home',
-  2: 'retry'
-}
+  .img-wrapper {
+    height: 200px;
+  }
+</style>
+{% endblock style %}
 
 
-function preload() {
-  this.load.scenePlugin('rexuiplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', 'rexUI', 'rexUI');
-  this.load.image('face', "{% static 'images/face.png' %}");
-  this.load.image('home', "{% static 'images/home.png' %}");
-  this.load.image('product', "{% static 'images/product.png' %}");
-  this.load.image('retry', "{% static 'images/retry.png' %}");
-};
+{% block content %}
+<div class="container">
 
+  {% include 'core/components/back-button.html' %}
 
+  <div class="my-3 fs-1 fw-bold  text-center">
+    <p>게임 결과</p>
+  </div>
 
-function create() {
-  // 텍스트 설정
-  let text_config = function(text_alignment) {
-    return {
-      fontSize: font_size, 
-      fontFamily: 'Arial',
-      color: '#000', 
-      align: text_alignment, 
-      fixedWidth: window_width,
-      fixedHeight: font_size,
-      wordWrap: {width: window_width},
-    };
-  } 
-  // 피부 나이 텍스트
-  this.add.text(0, 50, '당신의 피부 나이는 50살입니다', text_config('center'));
-  // 얼굴 이미지
-  this.add.image(window_width/2, 300, 'face').setScale(0.4);
+  <!-- 얼굴 나이 -->
+  <div class="text-center fw-bold">
+    <div class="fs-3">얼굴 나이 {{age_predicted}}살</div>
+  </div>
 
-  // 운동 횟수 텍스트
-  let exercise_text = this.add.text(0, exercise_text_start_height, '눈 운동 N번', text_config('center'));
-  let exercise_text2 = this.add.text(0, exercise_text_start_height + font_size +  exercise_text_margin_height, '입 운동 N번', text_config('center'));
+  <!-- 얼굴 이미지 -->
+  <div class="img-wrapper my-4 text-center">
+    <img src="{{face_image}}" alt="face" >
+  </div>
 
-  // 버튼 그룹
-  let buttons = this.rexUI.add.buttons({
-    x: window_width/2,
-    y: exercise_text_start_height + font_size * 2 + exercise_text_margin_height + 80,
-    // background: ,
-    buttons: [
-      createButton(this, 'product'),
-      createButton(this, 'home'),
-      createButton(this, 'retry'),
-    ],
-    align: 'center',
-    click: 'pointerup',
-    space: {
-      item: 80
-    }
-  }).layout();
+  <!-- 얼굴 분석 문구 -->
+  <div class="text-center fw-bold">
+    <div class="fs-5">왼쪽 눈 운동 {{ left_eye_cnt }}번</div>
+    <div class="fs-5">오른쪽 눈 운동 {{ right_eye_cnt }}번</div>
+    <div class="fs-5">입 운동 {{ mouth_cnt }}번</div>
+  </div>
+  
 
-
-  buttons.on('button.click', function (button, index, pointer, event) {
-    if (index == 0) {
-        window.location.href = '/core/recommend'
-    } else if (index == 1) {
-      window.location.href = '/mainapp/main'
-    } else {
-      // 게임 다시 하기
-    }
-  })
-};
-
-function update() {
-
-}
-
-let config = {
-  type: Phaser.AUTO,
-  width: window_width,
-  height: window_height,
-  scale: {
-      mode: Phaser.Scale.FIT,
-      autoCenter: Phaser.Scale.CENTER_BOTH
-  },
-  backgroundColor: '#fff',
-  scene: {
-    preload: preload,
-    create: create,
-    update:update,
-  },
-};
-let game = new Phaser.Game(config);
-
-</script>
-{% endblock script %}
-
+  <!-- 버튼 -->
+  <div class="mt-5 d-flex justify-content-evenly">
+    <a class="btn rounded-circle size-btn" style="background-color: #ac2bac;" href="/core/recommend" role="button">
+      <img class="img-fluid" src="{% static 'images/product.png' %}" alt="제품 추천 보기">
+    </a>
+    <a class="btn rounded-circle size-btn" style="background-color: #ac2bac;" href="/mainapp/main" role="button">
+      <img class="img-fluid" src="{% static 'images/home.png' %}" alt="홈으로 이동">
+    </a>
+    <a class="btn rounded-circle size-btn" style="background-color: #ac2bac;" role="button" onclick="window.history.back();">
+      <img class="img-fluid" src="{% static 'images/retry.png' %}" alt="다시하기">
+    </a>
+  </div>
+</div>
+{% endblock content %}
