@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 {% block script %}
-
+<script src="{% static 'js/range.js' %}"></script>
+<script src="{% static 'js/math.js' %}"></script>
 <script>
   let status = 'off_battle'
   
@@ -28,10 +29,11 @@
         mode: Phaser.Scale.ScaleModes.FIT
     }
   }
-  let tween
-  var game =  new Phaser.Game(config)
-      let action_selector
-      let skill_selector
+    let tween
+    let Cyclope, Cyclope2, Bamboo, Bamboo2, Butterfly, Butterfly2, Axolot, Axolot2
+    var game =  new Phaser.Game(config)
+    let action_selector
+    let skill_selector
 
       function preload(){
         this.load.image('face', "{% static '/images/char_back.jpg'%}")
@@ -40,9 +42,32 @@
         this.load.image('enemy', "{% static '/images/mob.png'%}")
         this.load.image('background', "{% static '/images/background.jpg'%}")
         this.load.image('hp', "{% static '/images/hp.png'%}")
-        this.load.image('skill1', "{% static '/images/thunder.png'%}")
-        this.load.image('skill2', "{% static '/images/flash.png'%}")
-        this.load.image('skill3', "{% static '/images/heart.png'%}")
+        
+        
+        //background
+        this.load.spritesheet('map', "{% static '/assets/background/TilesetInteriorFloor.png'%}", { frameWidth: 160, frameHeight: 60 })
+
+
+
+        //monsters
+        this.load.spritesheet('Cyclope', "{% static '/assets/monsters/Cyclope/SpriteSheet.png'%}", { frameWidth: 16, frameHeight: 16 })
+        this.load.spritesheet('Cyclope2', "{% static '/assets/monsters/Cyclope2/SpriteSheet.png'%}",{ frameWidth: 16, frameHeight: 16 })
+        this.load.spritesheet('Axolot', "{% static '/assets/monsters/Axolot/SpriteSheet.png'%}", { frameWidth: 16, frameHeight: 16 })
+        this.load.spritesheet('Axolot2', "{% static '/assets/monsters/AxolotBlue/SpriteSheet.png'%}",{ frameWidth: 16, frameHeight: 16 })
+        this.load.spritesheet('Bamboo', "{% static '/assets/monsters/Bamboo/SpriteSheet.png'%}", { frameWidth: 16, frameHeight: 16 })
+        this.load.spritesheet('Bamboo2', "{% static '/assets/monsters/BambooYellow/SpriteSheet.png'%}",{ frameWidth: 16, frameHeight: 16 })
+        this.load.spritesheet('Butterfly', "{% static '/assets/monsters/Butterfly/SpriteSheet.png'%}", { frameWidth: 16, frameHeight: 16 })
+        this.load.spritesheet('Butterfly2', "{% static '/assets/monsters/ButterflyBlue/SpriteSheet.png'%}",{ frameWidth: 16, frameHeight: 16 })
+
+
+
+        //skills
+        this.load.image('skill1', "{% static '/resource/ui/skills/skills/skill1.png'%}")
+        this.load.image('skill2', "{% static '/resource/ui/skills/skills/skill2.png'%}")
+        this.load.image('skill3', "{% static '/resource/ui/skills/skills/skill3.png'%}")
+        this.load.image('skill4', "{% static '/resource/ui/skills/skills/skill4.png'%}")
+        this.load.image('skill5', "{% static '/resource/ui/skills/skills/skill5.png'%}")
+        this.load.image('skill6', "{% static '/resource/ui/skills/skills/skill6.png'%}")
 
 
         //health Bar image
@@ -57,36 +82,115 @@
         
 
       }
-      let mob
+      let Monsters = []
+      
       let mob_move = false
       function create(){
 
         this.add.image(150,300,'background')
         //health bar create
-        let y = 100
-        let x = 160
-       
+        let y = 250
+        let x = 150
+        this.add.image(150, 100, 'map').setScale(2)
+
+
+        // mob
+      this.anims.create({
+        key: 'mob1_stable',
+        frames: this.anims.generateFrameNumbers('Cyclope', { frames: range(0, 6) }),
+        frameRate: 4,   
+        repeat: -1
+      });
+
+      this.anims.create({
+        key: 'mob2_stable',
+        frames: this.anims.generateFrameNumbers('Cyclope2', { frames: range(0, 6) }),
+        frameRate: 4,   
+        repeat: -1
+      });
+      this.anims.create({
+        key: 'mob3_stable',
+        frames: this.anims.generateFrameNumbers('Axolot', { frames: range(0, 6) }),
+        frameRate: 16,   
+        repeat: -1
+      });
+
+      this.anims.create({
+        key: 'mob4_stable',
+        frames: this.anims.generateFrameNumbers('Axolot2', { frames: range(0, 6) }),
+        frameRate: 16,   
+        repeat: -1
+      });
+      this.anims.create({
+        key: 'mob5_stable',
+        frames: this.anims.generateFrameNumbers('Bamboo', { frames: range(0, 6) }),
+        frameRate: 4,   
+        repeat: -1
+      });
+
+      this.anims.create({
+        key: 'mob6_stable',
+        frames: this.anims.generateFrameNumbers('Bamboo2', { frames: range(0, 6) }),
+        frameRate: 4,   
+        repeat: -1
+      });
+      this.anims.create({
+        key: 'mob7_stable',
+        frames: this.anims.generateFrameNumbers('Butterfly', { frames: range(0, 6) }),
+        frameRate: 4,   
+        repeat: -1
+      });
+
+      this.anims.create({
+        key: 'mob8_stable',
+        frames: this.anims.generateFrameNumbers('Butterfly2', { frames: range(0, 6) }),
+        frameRate: 4,   
+        repeat: -1
+      });
+    
+      
+
+      Cyclope = this.add.sprite(240, 200, 'Cyclope')
+      Cyclope.setScale(1);
+      Cyclope.play('mob1_stable');
+
+      Cyclope2 = this.add.sprite(280, 200, 'Cyclope2')
+      Cyclope2.setScale(1);
+      Cyclope2.play('mob2_stable');
+
+      Axolot = this.add.sprite(260, 200, 'Axolot')
+      Axolot.setScale(1);
+      Axolot.play('mob3_stable');
+
+      Axolot2 = this.add.sprite(220, 200, 'Cyclope2')
+      Axolot2.setScale(1);
+      Axolot2.play('mob4_stable');
+
 
         // background shadow
-        let leftShadowCap = this.add.image(x, y, 'left-cap-shadow')
+        function hpbox() {
+            let leftShadowCap = this.add.image(x, y, 'left-cap-shadow')
           .setOrigin(0, 0.4)
 
-        let middleShaddowCap = this.add.image(leftShadowCap.x + leftShadowCap.width, y, 'middle-shadow')
-          .setOrigin(0, 0.4)
-        middleShaddowCap.displayWidth = 120
+            let middleShaddowCap = this.add.image(leftShadowCap.x + leftShadowCap.width, y, 'middle-shadow')
+            .setOrigin(0, 0.4)
+            middleShaddowCap.displayWidth = 120
 
-        this.add.image(middleShaddowCap.x + middleShaddowCap.displayWidth, y, 'right-cap-shadow')
-          .setOrigin(0, 0.4)
+            this.add.image(middleShaddowCap.x + middleShaddowCap.displayWidth, y, 'right-cap-shadow')
+            .setOrigin(0, 0.4)
+            
+            // health bar
+            this.leftCap = this.add.image(x, y, 'left-cap')
+            .setOrigin(0, 0.4)
+
+            this.middle = this.add.image(this.leftCap.x + this.leftCap.width, y, 'middle')
+            .setOrigin(0, 0.4)
+            this.middle.displayWidth = 120
+            this.rightCap = this.add.image(this.middle.x + this.middle.displayWidth, y, 'right-cap')
+            .setOrigin(0, 0.4)
+
+        }
         
-          // health bar
-        this.leftCap = this.add.image(x, y, 'left-cap')
-        .setOrigin(0, 0.4)
-
-        this.middle = this.add.image(this.leftCap.x + this.leftCap.width, y, 'middle')
-          .setOrigin(0, 0.4)
-        this.middle.displayWidth = 120
-        this.rightCap = this.add.image(this.middle.x + this.middle.displayWidth, y, 'right-cap')
-          .setOrigin(0, 0.4)
 
 
         //hp text
@@ -124,12 +228,16 @@
         back_button.visible = false
         
         function use_skill(){
-          btn_attack.visible = true 
-          btn_deffence.visible = true 
+          
+
           skill_one.visible = false
           skill_two.visible = false
           skill_three.visible = false
           back_button.visible = false
+          setTimeout(function() {
+            btn_attack.visible = true 
+            btn_deffence.visible = true ;
+          }, 3000);
         }
 
         function back(){
@@ -153,11 +261,11 @@
         
        
         //tween to move image
-        tween = this.tweens.add({
-          targets: mob,
-          x: 250,
-          y: 40,
-          ease: 'Power1',
+        tween_mob1 = this.tweens.add({
+          targets: Cyclope,
+          x: 300,
+          y: 180,
+          ease: 'Power2',
           duration: 50,
           yoyo: true,
           repeat: 3,
@@ -166,6 +274,45 @@
           onYoyo: function () {},
           onRepeat: function () {},
         });
+        tween_mob2 = this.tweens.add({
+            targets: Cyclope2,
+            x: 320,
+            y: 180,
+            ease: 'Power2',
+            duration: 50,
+            yoyo: true,
+            repeat: 3,
+            onStart: function () {},
+            onComplete: function () {},
+            onYoyo: function () {},
+            onRepeat: function () {},
+          });
+          tween_mob3 = this.tweens.add({
+            targets: Axolot,
+            x: 280,
+            y: 180,
+            ease: 'Power2',
+            duration: 50,
+            yoyo: true,
+            repeat: 3,
+            onStart: function () {},
+            onComplete: function () {},
+            onYoyo: function () {},
+            onRepeat: function () {},
+          });
+          tween_mob4 = this.tweens.add({
+            targets: Axolot2,
+            x: 300,
+            y: 180,
+            ease: 'Power2',
+            duration: 50,
+            yoyo: true,
+            repeat: 3,
+            onStart: function () {},
+            onComplete: function () {},
+            onYoyo: function () {},
+            onRepeat: function () {},
+          });
         btn_attack.on('pointerdown', function (pointer) { 
           action_attack()
           
@@ -174,6 +321,16 @@
         btn_deffence.on('pointerdown', function (pointer) { 
           action_attack()
         });
+        
+        //DB에서 스킬의 정보를 읽어오기
+        //stage 정보 DB 만들기
+        //1 stage에선 몬스터 한마리가 나옴 2는 두마리 등등
+        //스테이지가 올라갈수록 강한 몬스터
+        //죽으면 첫 스테이지 부터 다시 시작
+        // 스테이지를 클리어하면 캐릭터가 경험치를 얻음
+        // 경험치를 충족해서 레벨업을하면 능력치가 올라감
+        let rand_0_4
+        let target = [tween_mob1, tween_mob2, tween_mob3, tween_mob4]
 
         skill_one.on('pointerdown', function (pointer) { 
           //  You can set the text proprety directly like this:
@@ -182,7 +339,9 @@
           //  Or use the setText method if you need method chaining:
           hp_text.setText(current_hp+'/100');
           use_skill()
-          tween.play();
+          rand_0_4 = Math.floor(Math.random() * 4);
+          target[rand_0_4].play()
+          
         });
 
         skill_two.on('pointerdown', function (pointer) { 
@@ -233,16 +392,8 @@
         }
         
       }
-      
-      
-        
-      
-
       function update(){
         
       }
-      
-      
-      
 </script>
 {% endblock script %}

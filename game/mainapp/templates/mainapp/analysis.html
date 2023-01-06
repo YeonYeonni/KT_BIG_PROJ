@@ -1,17 +1,20 @@
 {% extends "base.html" %}
 {%load static%}
 {% block script %}
+
 <script src="{% static 'js/window.js' %}"></script> 
 <script>
 
     function preload(){
+        //let history = {{history|safe}}
+        console.log(history)
 
         this.load.scenePlugin({
             key: 'rexuiplugin',
             url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
             sceneKey: 'rexUI'
         });
-
+        
         //face
         this.load.image('face', "{% static '/resource/ui/analysis/숲.png'%}")
 
@@ -43,7 +46,7 @@
         back.on('pointerdown', function(event){
             location.replace('http://localhost:8000/mainapp/main')
         })
-    
+
         // 눈, 코, 입 ui
         ui = this.physics.add.staticGroup();
         eyeui = ui.create(95,570, 'eyeui').setScale(0.35).setInteractive();
@@ -65,6 +68,21 @@
             }
         } 
 
+        // 추천
+
+        let recsys = this.rexUI.add.roundRectangle(188,180,250,70,7,0xD9D9D9).setInteractive({cursor:'pointer'})
+        this.add.text(130, 170, '추천제품보기', {color:'black', font:'450 20px Arial'})
+
+        recsys.on('pointerover', function(event){
+            this.setFillStyle(0x50bcdf)
+        })
+        recsys.on('pointerout', function(event){
+            this.setFillStyle(0xD9D9D9)
+        })
+        recsys.on('pointerdown', function(event){
+            location.replace('http://localhost:8000/mainapp/recsys')
+        })
+
         // 눈 버튼
         eye_momentum_daily = 3 // DB에서 받아오기
         eye_momentum_weekly = 3 // DB에서 받아오기
@@ -82,7 +100,6 @@
             nose_weekly.visible = false
             mouth_daily.visible = false
             mouth_weekly.visible = false
-
         })
 
         // 코 버튼
@@ -121,11 +138,12 @@
             eye_weekly.visible = false
             nose_daily.visible = false
             nose_weekly.visible = false
+
         })
     }
 
     function update(){
-        test_face.on('pointerup', function (event){Rect.setPosition(skill1.x, skill1.y);});
+        
     }
 
     let config = {

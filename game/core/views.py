@@ -15,6 +15,10 @@ def recommend(request):
   products = Beautyproduct.objects.all()
   return render(request, 'core/recommend.html', {'products': products})
 
+def analysis(request):
+  history = HistoryByDay.objects.all()
+  return render(request, 'mainapp/analysis.html', {'history': history})
+
 def pve(request):
   return render(request, 'core/PvE.html')
 def share(request):

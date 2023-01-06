@@ -8,8 +8,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-
-
 class User(AbstractUser):
     last_logout = models.DateTimeField(blank=True, null=True)
     time_per_day = models.IntegerField(default=0)
@@ -18,8 +16,6 @@ class User(AbstractUser):
     gender = models.CharField(max_length=2, blank=True, null=True)
     money = models.IntegerField(default=0)
     profile_image = models.ImageField(upload_to='profile', default="profile/default.png")
-
-
 
 class Beautyproduct(models.Model):
     id = models.AutoField(primary_key=True)

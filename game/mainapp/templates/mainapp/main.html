@@ -7,6 +7,7 @@
     let achieveUser;
     let dic_onoff = -1; // dic panel을 관리하기위한 전역변수
     let achievement_onoff = -1; // achievement panel을 관리하기위한 전역변수
+    let setting_onoff = -1
     let name
     let profile
       async function preload(){
@@ -15,10 +16,18 @@
           url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
           sceneKey: 'rexUI'
         })
+        this.load.plugin('rexfilechooserplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexfilechooserplugin.min.js', true)
+        this.load.plugin('rexcanvasplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexcanvasplugin.min.js', true)
+
         // resource load
         this.load.image('panel', "{% static '/resource/ui/background.jpg'%}")
         this.load.image('sound_on', "{% static '/resource/ui/main/musicOn.png'%}")
         this.load.image('sound_off', "{% static '/resource/ui/main/musicOff.png'%}")
+        this.load.image('exit', "{% static '/resource/ui/exitLeft.png'%}")
+        this.load.image('zoom', "{% static '/resource/ui/zoom.png'%}")
+        this.load.image('pveStart', "{% static '/resource/ui/main/pve.png'%}")
+        this.load.image('pvpStart', "{% static '/resource/ui/main/pvp.png'%}")
+
         this.load.audio('title_music', "{% static '/resource/bgm/title_music.mp3'%}")
 
         await fetch('http://localhost:8000/core/api/user')
@@ -29,14 +38,22 @@
            })
 
         this.load.image('profile_image', profile)
-
+        
       }
       
       async function create(){ 
         
         this.bgm = this.sound.play("title_music", {loop:true})
-        this.add.image(35,35,'profile_image').setInteractive({cursor:'pointer'})
+        var setting = this.add.image(35,35,'profile_image').setInteractive({cursor:'pointer'})
         let circle = this.add.circle(35,35,25)
+        var exit = this.add.image(window_width-30, 75, 'exit').setInteractive({cursor:'pointer'})
+
+        var canvas = this.add.rexCanvas(35, 35, 50, 50).fill('black');
+        canvas.fitTo = (function (parent) {
+            var newSize = FitTo(this, parent, true);
+            this.setDisplaySize(newSize.width, newSize.height);
+        }).bind(canvas)
+        canvas.fitTo('profile_image')
 
         // 각종 UI 배치
 
@@ -49,7 +66,7 @@
         var achievement = this.rexUI.add.roundRectangle(60,270,100,43,7,0xD9D9D9).setInteractive({cursor:'pointer'})
         this.add.text(43, 262, '업적', {color:'black', font:'450 16px Arial'})
 
-        var start = this.add.circle(window_width-70,window_height-70,50,50, 0x616161).setInteractive({cursor:'pointer'})
+        var start = this.add.circle(window_width-70,window_height-70,50,50, 0x54717a).setInteractive({cursor:'pointer'})
         this.add.text(window_width-113, window_height-80, '게임 시작', {color:'black', font:'450 20px Arial'})
 
         var store = this.add.circle(window_width-45,window_height-170,35,35,0xD9D9D9).setInteractive({cursor:'pointer'})
@@ -67,10 +84,51 @@
         let sound_on = this.add.image(window_width-30,30,'sound_on').setInteractive({cursor:'pointer'})
         let panel1 = this.add.image(-150,300,'panel').setScale(0.7).setInteractive({cursor:'pointer'})
         let panel2 = this.add.image(-150,300,'panel').setScale(0.7).setInteractive({cursor:'pointer'})
-        
+
+        var settingPanel = this.rexUI.add.roundRectangle(-150,90,150,50,7,0xffffff).setStrokeStyle(1, 0x4f4f4f).setInteractive({cursor:'pointer'})
+        var zoom = this.add.image(-150,90,'zoom').setScale(0.9).setInteractive({cursor:'pointer'})
+        var zoomText = this.add.text(-150,81,'사진 업로드',{color:'black', font:'450 16px Arial'})
+
+        var pveStart = this.add.image(window_width-70,window_height-97, 'pveStart').setInteractive({cursor:'pointer'})
+        var pveText = this.add.text(window_width-85,window_height-97, 'PVE', {color:'black', font:'450 16px Arial'})
+        var pvpStart = this.add.image(window_width-69,window_height-43, 'pvpStart').setInteractive({cursor:'pointer'})
+        var pvpText = this.add.text(window_width-85,window_height-58, 'PVP', {color:'black', font:'450 16px Arial'})
+        var line = this.add.line(window_width-70,window_height-67, 0, 0, 100, 0, 0xffffff)
+
+        var scene = this
+        zoom
+          .on('pointerdown', function () {
+              scene.plugins.get('rexfilechooserplugin').open({ accept: 'image/*', multiple:false })
+                  .then(function (result) {
+                      var files = result.files;
+                      if (files.length) {
+                          var url = URL.createObjectURL(files[0])
+                          canvas.loadFromURLPromise(url)
+                            .then(function () {
+                              URL.revokeObjectURL(url);
+                              canvas.fitTo(zoom)
+                              setting.visible=false
+                          })
+                      }
+                  })
+          })
+
+          settingPanel.on('pointerdown', function(event){
+            settingPanel.setX(-150)
+            zoom.setX(-150)
+            zoomText.setX(-150)
+            setting_onoff=-1
+          })
+  
         circle.setStrokeStyle(2,0x868686)
         panel1.alpha = 0.7
         panel2.alpha = 0.7
+
+        pveStart.visible=false
+        pvpStart.visible=false
+        pveText.visible=false
+        pvpText.visible=false
+        line.visible=false
         
         // 새로고침, 페이지 이동, 재접속 등 환경이 변경되었을때 bgm의 상태를 유지하기 위하여 localstorage에 상태를 저장
         if(localStorage.getItem('bgm')==null){ 
@@ -119,7 +177,7 @@
           this.setFillStyle(0xD9D9D9)
         })
         store.on('pointerdown', function(event){
-          location.replace('http://localhost:8000/mainapp/store')
+          window.location.href = `/mainapp/store`
         })
 
         skills.on('pointerover', function(event){
@@ -129,7 +187,7 @@
           this.setFillStyle(0xD9D9D9)
         })
         skills.on('pointerdown', function(event){
-          location.replace('http://localhost:8000/mainapp/skills')
+          window.location.href = `/mainapp/skills`
         })
 
         analysis.on('pointerover', function(event){
@@ -139,7 +197,7 @@
           this.setFillStyle(0xD9D9D9)
         })
         analysis.on('pointerdown', function(event){
-          location.replace('http://localhost:8000/mainapp/analysis')
+          window.location.href = `/mainapp/analysis`
         })
         
         chr.on('pointerover', function(event){
@@ -149,7 +207,7 @@
           this.setFillStyle(0xD9D9D9)
         })
         chr.on('pointerdown', function(event){
-          location.replace('http://localhost:8000/mainapp/character')
+          window.location.href = `/mainapp/character`
         })
 
         start.on('pointerover', function(event){
@@ -159,7 +217,20 @@
           this.setFillStyle(0xD9D9D9)
         })
         start.on('pointerdown', function(event){
-          location.replace('http://localhost:8000/mainapp/start')
+          start.visible=false
+          pveStart.visible=true
+          pvpStart.visible=true
+          pveText.visible=true
+          pvpText.visible=true
+          line.visible=true
+        })
+
+        pveStart.on('pointerdown', function(event){
+          window.location.href = `/core/battle`
+        })
+
+        pvpStart.on('pointerdown', function(event){
+          window.location.href = `/mainapp/room`
         })
 
         dic.on('pointerover', function(event){
@@ -178,6 +249,8 @@
           else if(dic_onoff==1){
             panel1.setX(-150)
             dic_onoff=-1
+
+
           }
           else{
             panel1.setX(window_width/2)
@@ -221,6 +294,29 @@
           localStorage.setItem("bgm", 'true')
         })
 
+        exit.on('pointerdown', function(event){
+          window.location.href = `/accounts/logout`
+        })
+
+        setting.on('pointerdown', function(event){
+          if(setting_onoff==1){
+            settingPanel.setX(-150)
+            zoom.setX(-150)
+            zoomText.setX(-150)
+            setting_onoff=-1
+          }
+          else{
+            settingPanel.setX(80)
+            zoom.setX(30)
+            zoomText.setX(60)
+            setting_onoff=1
+          }
+        })
+
+        zoom.on('pointerdown', function(event){
+          
+        })
+
 
         // object에서 마우스가 벗어났을때 작동하는 코드
        
@@ -229,6 +325,35 @@
 
       function update(){
       }
+
+      var FitTo = function (child, parent, out) {
+        if (out === undefined) {
+            out = {};
+        } else if (out === true) {
+            out = globalSize;
+        }
+    
+        if ((child.width <= parent.width) && (child.height <= parent.height)) {
+            out.width = child.width;
+            out.height = child.height;
+            return out;
+        }
+    
+        var childRatio = child.width / child.height;
+        out.width = Math.min(child.width, parent.width);
+        out.height = Math.min(child.height, parent.height);
+        var ratio = out.width / out.height;
+    
+        if (ratio < childRatio) {
+            out.height = out.width / childRatio;
+        } else if (ratio > childRatio) {
+            out.width = out.height * childRatio;
+        }
+    
+        return out;
+      }
+    
+      var globalSize = {};
       
       let config = {
         type: Phaser.AUTO,

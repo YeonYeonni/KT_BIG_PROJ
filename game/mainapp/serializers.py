@@ -2,24 +2,6 @@ from rest_framework import serializers
 from .models import *
 from core.models import User
 
-class ItemSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = Item
-    fields = '__all__'
-
-class ShopSerializer(serializers.ModelSerializer):
-  item = ItemSerializer(read_only=True)
-
-  class Meta:
-    model = Shop
-    fields = '__all__'
-    
-# class ItemSerializer(serializers.ModelSerializer):
-#   class Meta:
-#     model = Item
-#     fields = '__all__'
-
-
 class ItemImageSerializer(serializers.ModelSerializer):
 
     image = serializers.ImageField(use_url=True)
@@ -48,6 +30,14 @@ class ItemSerializer(serializers.ModelSerializer):
             ItemImage.objects.create(item=instance, image=image_data)
         return instance
     
+class ShopSerializer(serializers.ModelSerializer):
+  item = ItemSerializer(read_only=True)
+
+  class Meta:
+    model = Shop
+    fields = '__all__'
+        
+
 class StorePostSerializer(serializers.ModelSerializer) :
     class Meta:
         model = HavingItem
@@ -61,4 +51,9 @@ class MoneyPatchSerializer(serializers.ModelSerializer) :
 class HavingItemSerializer(serializers.ModelSerializer):
   class Meta:
     model = HavingItem
+    fields = '__all__'
+    
+class WearingSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = wearing
     fields = '__all__'
